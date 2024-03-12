@@ -163,10 +163,8 @@ fn compile(result: &str) {
 
         println!("{}", "Compiled".green());
 
-        if meta_content_str.contains(&script.script_src) {
-            let new_line = script.line_src.replace(".lua", ".luac");
-            meta_content_str = meta_content_str.replace(&script.line_src, &new_line);
-        };
+        let new_line = script.line_src.replace(".lua", ".luac");
+        meta_content_str = meta_content_str.replace(&script.line_src, &new_line);
     }
 
     println!("{}", "All files compiled".green());

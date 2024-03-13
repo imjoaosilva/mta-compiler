@@ -188,4 +188,6 @@ fn compile(result: &str) {
         .expect("Failed to create file")
         .write_all(meta_content_str.as_bytes())
         .expect("Failed to write file");
+
+    thread::sleep(Duration::from_secs(2));
 }

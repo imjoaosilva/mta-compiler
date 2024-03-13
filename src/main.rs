@@ -9,8 +9,6 @@ use std::{
 };
 
 struct Script {
-    file_name: String,
-    folder_path: String,
     script_src: String,
     line_src: String,
 }
@@ -108,12 +106,8 @@ fn compile(result: &str) {
             }
 
             let script_src = src.split("\"").collect::<Vec<&str>>()[1];
-            let path = Path::new(script_src);
-            let file_name = path.file_stem().unwrap().to_str().unwrap();
-            let folder_path = path.parent().unwrap().to_str().unwrap();
+
             scripts.push(Script {
-                file_name: file_name.to_string(),
-                folder_path: folder_path.to_string(),
                 script_src: script_src.to_string(),
                 line_src: line,
             });
@@ -162,8 +156,8 @@ fn compile(result: &str) {
         let response = response.unwrap();
 
         let file = File::create(format!(
-            "{}{}{}.luac",
-            custom_path, script.folder_path, script.file_name
+            "{}{}",
+            custom_path, script.script_src.replace("lua", "luac")
         ))
         .expect("Failed to create file");
 

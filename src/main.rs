@@ -170,7 +170,6 @@ fn compile(result: &str) {
         let mut writer = io::BufWriter::new(file);
 
         let content = response.text().unwrap();
-        println!("{content}");
 
         writer
             .write_all(content.as_bytes())
@@ -182,6 +181,7 @@ fn compile(result: &str) {
         meta_content_str = meta_content_str.replace(&script.line_src, &new_line);
     }
 
+    clearscreen::clear().expect("Failed to clear the screen");
     println!("{}", "All files compiled".green());
 
     File::create(format!("{}meta.xml", &custom_path))

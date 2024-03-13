@@ -1,4 +1,5 @@
 use colored::*;
+use std::fs;
 use std::{
     fs::{File, OpenOptions},
     io::{self, BufRead, Read, Write},
@@ -6,7 +7,6 @@ use std::{
     thread,
     time::Duration,
 };
-use std::fs;
 
 struct Script {
     file_name: String,
@@ -57,13 +57,15 @@ fn compile(result: &str) {
         String::from("")
     } else {
         format!("{}\\", result)
-    }.trim().to_string();
+    }
+    .trim()
+    .to_string();
 
     clearscreen::clear().expect("Failed to clear the screen");
     println!("{}", "Getting data...".cyan());
 
-    println!("{}", format!("{}meta.xml",&custom_path));
-    let hasmeta = Path::new(format!("{}meta.xml",&custom_path).as_str()).exists();
+    println!("{}", format!("{}meta.xml", &custom_path));
+    let hasmeta = Path::new(format!("{}meta.xml", &custom_path).as_str()).exists();
     if !hasmeta {
         clearscreen::clear().expect("Failed to clear the screen");
         println!(
@@ -74,15 +76,16 @@ fn compile(result: &str) {
         thread::sleep(Duration::from_secs(2));
         panic!();
     };
-    
-    let mut meta_content_str = fs::read_to_string(format!("{}meta.xml",&custom_path)).expect("Failed to read file")
-    .trim()
-    .replace("'", "\"");
+
+    let mut meta_content_str = fs::read_to_string(format!("{}meta.xml", &custom_path))
+        .expect("Failed to read file")
+        .trim()
+        .replace("'", "\"");
 
     let file = OpenOptions::new()
         .read(true)
-        .open(format!("{}meta.xml",&custom_path))
-        .expect("Failed to open file");  
+        .open(format!("{}meta.xml", &custom_path))
+        .expect("Failed to open file");
 
     let mut reader: io::BufReader<&File> = io::BufReader::new(&file);
     let reader = reader.by_ref();
@@ -128,7 +131,8 @@ fn compile(result: &str) {
     for script in &scripts {
         println!("{} {}", "Getting...".cyan(), script.script_src);
 
-        let hasfile = Path::new(format!("{}{}",&custom_path, &script.script_src).as_str()).exists();
+        let hasfile =
+            Path::new(format!("{}{}", &custom_path, &script.script_src).as_str()).exists();
         if !hasfile {
             println!(
                 "{} {}",
@@ -140,7 +144,14 @@ fn compile(result: &str) {
 
         let response = reqwest::blocking::Client::new()
             .post("https://luac.multitheftauto.com/?compile=1&debug=0&obfuscate=2")
-            .form(&[("luasource", format!("{}{}", &custom_path, &script.script_src))])
+            .multipart(
+                reqwest::blocking::multipart::Form::new()
+                    .file(
+                        "luasource",
+                        format!("{}{}", &custom_path, &script.script_src),
+                    )
+                    .unwrap(),
+            )
             .send();
 
         if response.is_err() {
@@ -150,12 +161,16 @@ fn compile(result: &str) {
 
         let response = response.unwrap();
 
-        let file = File::create(format!("{}{}{}.luac", custom_path, script.folder_path, script.file_name))
-            .expect("Failed to create file");
+        let file = File::create(format!(
+            "{}{}{}.luac",
+            custom_path, script.folder_path, script.file_name
+        ))
+        .expect("Failed to create file");
 
         let mut writer = io::BufWriter::new(file);
 
         let content = response.text().unwrap();
+        println!("{content}");
 
         writer
             .write_all(content.as_bytes())

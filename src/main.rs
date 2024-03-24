@@ -97,9 +97,9 @@ fn compile(result: &str) {
             .replace("'", "\"");
 
         if line.contains("src") {
-            // create a varaible that remove all spaces from line
-            let line = line.replace(" ", "");
-            let src = line.trim().split("src=").collect::<Vec<&str>>()[1];
+            
+            let filtered_line = line.replace(" ", "");
+            let src = filtered_line.trim().split("src=").collect::<Vec<&str>>()[1];
             let filetype = src.split(".").collect::<Vec<&str>>()[1]
                 .split("\"")
                 .collect::<Vec<&str>>()[0];
